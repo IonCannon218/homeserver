@@ -8,8 +8,6 @@ services:
       - PUID=${UID}
       - PGID=${GID}
       - TZ=${TIMEZONE}
-      # - TRAGGO_DEFAULT_USER_NAME="ionplasma"
-      # - TRAGGO_DEFAULT_USER_PASS="Bd5W8sSdjK9qpB6u4AA2BtSY"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.traggo.rule=Host(`traggo.${BASE_DOMAIN:?not set}`)"

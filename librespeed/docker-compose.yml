@@ -1,0 +1,32 @@
+version: "3"
+
+services:
+  librespeed:
+    image: lscr.io/linuxserver/librespeed
+    container_name: librespeed
+    environment:
+      - PUID=${UID}
+      - PGID=${GID}
+      - TZ=${TIMEZONE}
+      - DB_TYPE=sqlite
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.librespeed.rule=Host(`speedtest.${BASE_DOMAIN:?not set}`)"
+      - "traefik.http.routers.librespeed.entrypoints=web"
+      # - "traefik.http.routers.librespeed.tls.certresolver=letsencrypt"
+      
+      - "flame.type=application"
+      - "flame.name=Librespeed"
+      - "flame.url=http://speedtest.${BASE_DOMAIN:?not set}"
+
+      # Watchtower Update
+      - "com.centurylinklabs.watchtower.enable=true"
+    networks:
+      - traefik
+    volumes:
+      - /docker/librespeed/:/config
+    restart: unless-stopped
+
+networks:
+  traefik:
+    external: true

@@ -1,0 +1,36 @@
+version: "3"
+
+services:
+  actualbudget:
+    container_name: actualbudget
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+    image: phoenixashes/actual
+    environment:
+      - PUID=${UID}
+      - PGID=${GID}
+      - TZ=${TIMEZONE}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.actualbudget.rule=Host(`budget.${BASE_DOMAIN:?not set}`)"
+      - "traefik.http.routers.actualbudget.entrypoints=web"
+
+      - "flame.type=application"
+      - "flame.name=Budget"
+      - "flame.url=http://budget.${BASE_DOMAIN:?not set}"
+      
+      # Watchtower Update
+      - "com.centurylinklabs.watchtower.enable=true"
+    networks:
+      - traefik
+    expose:
+      - 5006
+    volumes:
+      - /docker/actualbudget/server-files:/app/server-files
+      - /docker/actualbudget/user-files:/app/user-files
+    restart: unless-stopped
+
+networks:
+  traefik:
+    external: true

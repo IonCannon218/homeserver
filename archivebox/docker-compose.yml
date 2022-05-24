@@ -1,0 +1,90 @@
+version: "3"
+
+### https://github.com/ArchiveBox/ArchiveBox
+## To add superuser:
+# $ docker-compose archivebox /bin/sh -c 'su archivebox && cd /data && archivebox manage createsuperuser'
+## To install additional dependencies:
+# $ docker-compose archivebox /bin/sh -c 'su archivebox && cd /data && archivebox setup'
+
+services:
+  archivebox:
+    image: archivebox/archivebox:master
+    container_name: archivebox
+    command: server --quick-init 0.0.0.0:8000
+    depends_on:
+      - archivebox-sonic
+    environment:
+      - "CHECK_SSL_VALIDITY=True"
+      - "CHROME_HEADLESS=True"
+      - "CHROME_SANDBOX=False"
+      # - "FOOTER_INFO="
+      - "IN_DOCKER=True"
+      - "ONLY_NEW=False"
+      - "OUTPUT_PERMISSIONS=775"
+      - "PGID=${GID:?not set}"
+      - "PUID=${UID:?not set}"
+      - "PUBLIC_ADD_VIEW=False"
+      - "PUBLIC_INDEX=False"
+      - "PUBLIC_SNAPSHOTS=False"
+      - "RESOLUTION=1920,1080"
+      - "SAVE_ARCHIVE_DOT_ORG=False"
+      - "SAVE_DOM=True"
+      - "SAVE_FAVICON=True"
+      - "SAVE_GIT=True"
+      - "SAVE_HEADERS=False"
+      - "SAVE_MEDIA=True"
+      - "SAVE_MERCURY=True"
+      - "SAVE_PDF=True"
+      - "SAVE_READABILITY=True"
+      - "SAVE_SCREENSHOT=True"
+      - "SAVE_SINGLEFILE=False"
+      - "SAVE_TITLE=True"
+      - "SAVE_WARC=True"
+      - "SAVE_WGET=True"
+      - "SAVE_WGET_REQUISITES=True"
+      - "SEARCH_BACKEND_ENGINE=sonic"
+      - "SEARCH_BACKEND_HOST_NAME=sonic"
+      - "SEARCH_BACKEND_PASSWORD=${ARCHIVEBOX_SEARCH_BACKEND_PASSWORD:?not set}"
+      - "SHOW_PROGRESS=False"
+      - "SNAPSHOTS_PER_PAGE=20"
+      - "TIME_ZONE=UTC"
+      - "USE_COLOR=False"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.archivebox.rule=Host(`archive.${BASE_DOMAIN:?not set}`)"
+      - "traefik.http.routers.archivebox.entrypoints=web"
+      # - "traefik.http.routers.archivebox.tls.certresolver=letsencrypt"
+      # - "traefik.http.routers.archivebox.middlewares=compress,adminauth"
+      - "traefik.docker.network=traefik"
+
+      - "flame.type=application"
+      - "flame.name=ArchiveBox"
+      - "flame.url=http://archive.${BASE_DOMAIN:?not set}"
+      
+      # Watchtower Update
+      - "com.centurylinklabs.watchtower.enable=true"
+    networks:
+      - traefik
+      - archivebox
+    volumes:
+      - /docker/archivebox/data:/data
+    restart: always
+
+  archivebox-sonic:
+    image: valeriansaliou/sonic:v1.3.0
+    container_name: archivebox-sonic
+    restart: always
+    environment:
+      - "SEARCH_BACKEND_PASSWORD=${ARCHIVEBOX_SEARCH_BACKEND_PASSWORD:?not set}"
+    networks:
+      - archivebox
+    volumes:
+      - /docker/archivebox/config/sonic.cfg:/etc/sonic.cfg:ro
+      - /docker/archivebox/sonic:/var/lib/sonic/store
+
+networks:
+  traefik:
+    external: true
+  archivebox:
+    name: archivebox
+    internal: true

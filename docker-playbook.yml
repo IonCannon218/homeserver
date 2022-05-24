@@ -1,0 +1,136 @@
+- hosts: rpi4
+
+  tasks:
+    # Sync docker-compose files over
+    - name: Sync files
+      ansible.posix.synchronize:
+        src: ./
+        dest: ~/docker
+        archive: no
+        mode: push
+        recursive: yes
+
+    ## Pi-hole
+    ## https://github.com/pi-hole/pi-hole
+    ## DNS ad block and filtering
+    - name: Pi-hole
+      community.docker.docker_compose:
+        project_src: ~/docker/pihole
+        pull: true
+        remove_orphans: true
+
+    ## Traefik
+    ## https://doc.traefik.io/traefik/
+    ## Reverse proxy with automatic Docker container detection
+    - name: Traefik
+      community.docker.docker_compose:
+        project_src: ~/docker/traefik
+        pull: true
+        remove_orphans: true
+
+    ## Grafana, Prometheus, NodeExporter, Cadvisor
+    ## https://github.com/grafana/grafana
+    ## https://prometheus.io/docs/prometheus/latest/
+    ## https://github.com/prometheus/node_exporter
+    ## https://github.com/google/cadvisor
+    ## Metrics gathering and displaying with pretty graphs
+    - name: Grafana
+      community.docker.docker_compose:
+        project_src: ~/docker/grafana
+        pull: true
+        remove_orphans: true
+
+    ## Actual budget
+    ## https://github.com/actualbudget/actual-server
+    ## Envelope based zero sum budgeting
+    # - name: Git pull actual budget
+    #   git:
+    #     repo: https://github.com/actualbudget/actual-server.git
+    #     dest: ~/docker/actualbudget
+    # - name: Actual budget config files
+    #   copy:
+    #     src: actualbudget/
+    #     dest: ~/docker/actualbudget
+    - name: ActualBudget
+      community.docker.docker_compose:
+        project_src: ~/docker/actualbudget
+        build: true
+        remove_orphans: true
+
+    ## ArchiveBox
+    ## https://github.com/ArchiveBox/ArchiveBox
+    ## Selfhosted wayback machine
+    ## First run requires: docker-compose run archivebox init --setup
+    - name: ArchiveBox
+      community.docker.docker_compose:
+        project_src: ~/docker/archivebox
+        pull: true
+        remove_orphans: true
+
+    ## Flame
+    ## https://github.com/pawelmalak/flame
+    ## Dashboard with Docker integration
+    - name: Flame
+      community.docker.docker_compose:
+        project_src: ~/docker/flame
+        pull: true
+        remove_orphans: true
+
+    ## Jellyfin
+    ## https://github.com/jellyfin/jellyfin
+    ## Media system
+    - name: Jellyfin
+      community.docker.docker_compose:
+        project_src: ~/docker/jellyfin
+        pull: true
+        remove_orphans: true
+
+    ## Librespeed
+    ## https://github.com/librespeed/speedtest
+    - name: Librespeed
+      community.docker.docker_compose:
+        project_src: ~/docker/librespeed
+        pull: true
+        remove_orphans: true
+
+    ## Sonarr, Jackett
+    ## https://github.com/Sonarr/Sonarr
+    ## https://github.com/Jackett/Jackett
+    ## Smart PVR for automatic media downloading
+    - name: Sonarr
+      community.docker.docker_compose:
+        project_src: ~/docker/sonarr
+        pull: true
+        remove_orphans: true
+
+    ## Szurubooru
+    ## https://github.com/rr-/szurubooru
+    ## Selfhosted booru style image board. Just an experiment at the moment.
+    # - name: Szurubooru
+    #   community.docker.docker_compose:
+    #     project_src: ~/docker/szurubooru
+    #     pull: true
+    #     remove_orphans: true
+
+    ## Traggo
+    ## https://github.com/traggo/server
+    ## Selfhosted tag based time tracking
+    - name: Traggo
+      community.docker.docker_compose:
+        project_src: ~/docker/traggo
+        pull: true
+        remove_orphans: true
+
+    ## UniFi Controller
+    ## https://docs.linuxserver.io/images/docker-unifi-controller
+    - name: Unifi Controller
+      community.docker.docker_compose:
+        project_src: ~/docker/unifi-controller
+        pull: true
+        remove_orphans: true
+
+    # - name: Start watchtower
+    #   community.docker.docker_compose:
+    #     project_src: ~/docker/watchtower
+    #     pull: true
+    #     remove_orphans: true

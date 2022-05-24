@@ -1,0 +1,117 @@
+- hosts: rpi4
+  
+  ## Target machine should have a fresh Debian install.
+  ## May work for other apt based distros.
+  ## Should only need to run this playbook once.
+
+  tasks:
+    - name: Ensure local SSH Key is authorized
+      authorized_key:
+        user: ionplasma
+        state: present
+        key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+    
+    # Update system-level dependencies
+    - name: Update and upgrade apt packages
+      become: true
+      apt:
+        upgrade: dist
+        update_cache: true
+    
+    - name: set timezone
+      become: true
+      community.general.timezone:
+        name: America/New_York
+
+    # Harden sshd config and restart the server
+    - name: Disable SSH root login
+      become: true
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#PermitRootLogin'
+        line: 'PermitRootLogin no'
+    - name: Disable SSH password auth
+      become: true
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regex: '^#PasswordAuthentication yes'
+        line: 'PasswordAuthentication no'
+    - name: Set SSH UsePrivilegeSeparation
+      become: true
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        state: present
+        line: 'UsePrivilegeSeparation sandbox'
+    - name: Set SSH AuthenticationMethods
+      become: true
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        state: present
+        line: 'AuthenticationMethods publickey'
+    - name: Restart SSHd
+      become: true
+      service:
+        name: sshd
+        state: restarted
+    
+    - name: Install docker dependencies
+      become: true
+      apt:
+        name: "{{ item }}"
+        state: present
+        update_cache: true
+      loop:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - gnupg
+        - lsb-release
+        - python3-pip
+        - python3-setuptools
+    - name: Add Docker GPG key
+      become: true
+      apt_key:
+        url: https://download.docker.com/linux/debian/gpg
+        state: present
+    - name: Add docker repository to apt
+      become: true
+      apt_repository:
+        # Edit the arch line for the target arch
+        repo: 'deb [arch=arm64] https://download.docker.com/linux/debian {{ ansible_distribution_release}} stable'
+        state: present
+        filename: docker
+    - name: Install docker
+      become: true
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
+    - name: Add user to docker group
+      become: true
+      user:
+        name: ionplasma
+        groups: docker
+        append: true
+    - name: Enable & Start Docker service
+      become: true
+      service:
+        name: docker
+        enabled: true
+        state: started
+    - name: Install pip components
+      pip:
+        executable: pip3
+        name:
+          - docker
+          - docker-compose
+          - virtualenv
+        
+    # Automatically upgrade apt packages
+    - name: Install unattended upgrades
+      become: true
+      apt:
+        name: unattended-upgrades
+        state: present

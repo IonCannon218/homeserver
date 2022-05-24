@@ -1,0 +1,40 @@
+version: "3"
+
+services:
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin
+    container_name: jellyfin
+    environment:
+      - PUID=${UID:?not set}
+      - PGID=${GID:?not set}
+      - TZ=${TIMEZONE:?not set}
+      - JELLYFIN_PublishedServerUrl=jellyfin.${BASE_DOMAIN:?not set}
+    volumes:
+      - /docker/jellyfin/config:/config
+      - /docker/jellyfin/cache:/cache
+      - media:/media:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.jellyfin.rule=Host(`jellyfin.${BASE_DOMAIN:?not set}`)"
+      - "traefik.http.routers.jellyfin.entrypoints=web"
+      - "traefik.http.routers.jellyfin.service=jellyfin"
+      - "traefik.http.services.jellyfin.loadbalancer.server.port=8096"
+      # - "traefik.http.routers.jellyfin.tls.certresolver=letsencrypt"
+
+      - "flame.type=application"
+      - "flame.name=Jellyfin"
+      - "flame.url=http://jellyfin.${BASE_DOMAIN:?not set}"
+    networks:
+      - traefik
+    restart: unless-stopped
+
+volumes:
+  media:
+    driver_opts:
+      type: nfs
+      o: "addr=192.168.5.9,nolock,soft,ro,rsize=8192,wsize=8192,tcp,timeo=14,nfsvers=4"
+      device: ":/mnt/tank8tb/media/"
+
+networks:
+  traefik:
+    external: true

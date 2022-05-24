@@ -1,0 +1,28 @@
+version: "3"
+
+services:
+  flame:
+    image: pawelmalak/flame:multiarch
+    container_name: flame
+    environment:
+      - PUID=${UID:?not set}
+      - PGID=${GID:?not set}
+      - TZ=${TIMEZONE:?not set}
+      - PASSWORD=${FLAME_PASSWORD:?not set}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.flame.rule=Host(`flame.${BASE_DOMAIN:?not set}`)"
+      - "traefik.http.routers.flame.entrypoints=web"
+      
+      # Watchtower Update
+      - "com.centurylinklabs.watchtower.enable=true"
+    networks:
+      - traefik
+    volumes:
+      - /docker/flame/data:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    restart: always
+
+networks:
+  traefik:
+    external: true

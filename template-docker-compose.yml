@@ -1,0 +1,31 @@
+version: "3"
+
+services:
+  ___:
+    image: ___
+    container_name: ___
+    user: ${UID:?not set}:${GID:?not set}
+    environment:
+      - PUID=${UID:?not_set} ## use this for lscr.io images
+      - PGID=${GID:?not_set}
+      - TZ=${TIMEZONE:?notset}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.___.rule=Host(`___.${BASE_DOMAIN:?not_set}`)"
+      - "traefik.http.routers.___.entrypoints=web"
+
+      - "flame.type=application"
+      - "flame.name=___"
+      - "flame.url=http://___.${BASE_DOMAIN:?not_set}"
+      
+      # Watchtower Update
+      - "com.centurylinklabs.watchtower.enable=true"
+    networks:
+      - traefik
+    volumes:
+      - 
+    restart: unless-stopped
+
+networks:
+  traefik:
+    external: true

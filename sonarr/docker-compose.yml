@@ -22,7 +22,7 @@ services:
 
       - "flame.type=application"
       - "flame.name=Sonarr"
-      - "flame.url=http://sonarr.${BASE_DOMAIN:?not set}"
+      - "flame.url=http://sonarr.${BASE_DOMAIN:?not set}/calendar"
 
       # Watchtower Update
       - "com.centurylinklabs.watchtower.enable=true"

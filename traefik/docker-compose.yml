@@ -14,6 +14,9 @@ services:
       - "--api.dashboard=true"
       - "--api.insecure=true"
 
+      # Forces traefik to only use the traefik docker network for connections
+      - "--providers.docker.network=traefik"
+
       # Allow self signed certs upstream (Unifi controller)
       - "--serversTransport.insecureSkipVerify=true"
 

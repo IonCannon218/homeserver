@@ -40,23 +40,6 @@
         pull: true
         remove_orphans: true
 
-    ## Actual budget
-    ## https://github.com/actualbudget/actual-server
-    ## Envelope based zero sum budgeting
-    # - name: Git pull actual budget
-    #   git:
-    #     repo: https://github.com/actualbudget/actual-server.git
-    #     dest: ~/docker/actualbudget
-    # - name: Actual budget config files
-    #   copy:
-    #     src: actualbudget/
-    #     dest: ~/docker/actualbudget
-    - name: ActualBudget
-      community.docker.docker_compose:
-        project_src: ~/docker/actualbudget
-        build: true
-        remove_orphans: true
-
     ## ArchiveBox
     ## https://github.com/ArchiveBox/ArchiveBox
     ## Selfhosted wayback machine
@@ -75,6 +58,22 @@
         project_src: ~/docker/flame
         pull: true
         remove_orphans: true
+
+    ## Gitea
+    ## https://github.com/go-gitea/gitea
+    - name: Gitea
+      community.docker.docker_compose:
+        project_src: ~/docker/gitea
+        pull: true
+        remove_orphans: true
+
+    # ## Immich
+    # ## https://github.com/alextran1502/immich
+    # - name: Immich
+    #   community.docker.docker_compose:
+    #     project_src: ~/docker/immich
+    #     pull: true
+    #     remove_orphans: true
 
     ## Jellyfin
     ## https://github.com/jellyfin/jellyfin
@@ -106,18 +105,9 @@
     ## Szurubooru
     ## https://github.com/rr-/szurubooru
     ## Selfhosted booru style image board. Just an experiment at the moment.
-    # - name: Szurubooru
-    #   community.docker.docker_compose:
-    #     project_src: ~/docker/szurubooru
-    #     pull: true
-    #     remove_orphans: true
-
-    ## Traggo
-    ## https://github.com/traggo/server
-    ## Selfhosted tag based time tracking
-    - name: Traggo
+    - name: Szurubooru
       community.docker.docker_compose:
-        project_src: ~/docker/traggo
+        project_src: ~/docker/szurubooru
         pull: true
         remove_orphans: true
 
@@ -128,9 +118,3 @@
         project_src: ~/docker/unifi-controller
         pull: true
         remove_orphans: true
-
-    # - name: Start watchtower
-    #   community.docker.docker_compose:
-    #     project_src: ~/docker/watchtower
-    #     pull: true
-    #     remove_orphans: true
